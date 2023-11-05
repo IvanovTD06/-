@@ -1,0 +1,16 @@
+<html lang="ru-RU">
+    <head>
+        <meta charset="UTF-8">
+        <title>Регистрация филиала</title>
+    </head>
+    <body bgcolor="#deffff">
+        <form action="BR submit" method="post">
+            {% csrf_token %}
+            <table>
+                {{ form }}
+            </table>
+            <input type="submit" value="Submit"/>
+         </form>
+        
+    </body>
+</html>

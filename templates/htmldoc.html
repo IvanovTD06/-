@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+    <head>
+        <meta charset="UTF-8">
+        <title>Расписание</title>
+    </head>
+    <body bgcolor="#deffff">
+        <!-- <h1>Это заголовок</h1>
+        <p>Это какой-то текст</p>
+        <select>
+            <option>1111</option>
+            <option>222</option>
+        </select> -->
+
+
+        <form action="create_db" method="post">
+    {{DDBerr}}
+    {% csrf_token %}
+    <input type="submit", value="Создать базу данных">
+        </form>
+
+        <form action="drop_db" method="post">
+    {{ICNerr}}
+    {% csrf_token %}
+    <input type="submit", value="Удалить базу данных">
+        </form>
+        <ul class="register actions">
+        <li><a href="Teacher register.html">Зарегистрировать учителя</a></li>
+        <li><a href="Discipline register.html">Зарегистрировать дисциплину</a></li>
+        <li><a href="Subject register.html">Зарегистрировать оборудование</a></li>
+        <li><a href="Building register.html">Зарегистрировать филиал</a></li>
+        <li><a href="Cabinet type register.html">Зарегистрировать тип кабинета</a></li>
+
+
+        </ul>
+    </body>
+</html>
