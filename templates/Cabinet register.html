@@ -1,0 +1,22 @@
+<html lang="ru-RU">
+    <head>
+        <meta charset="UTF-8">
+        <title>Регистрация учителя</title>
+    </head>
+    <body bgcolor="#deffff">
+        <form action="TR submit" method="post">
+            {% csrf_token %}
+            <table>
+                        <!-- <h1>Это заголовок</h1>
+        <p>Это какой-то текст</p>
+        <select>
+            <option>1111</option>
+            <option>222</option>
+        </select> -->
+                {{ form }}
+            </table>
+            <input type="submit" value="Submit"/>
+         </form>
+         
+    </body>
+</html>
