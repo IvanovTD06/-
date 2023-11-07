@@ -9,7 +9,7 @@ from pathlib import Path
 
 from django.shortcuts import render, redirect
 
-from MainApp.forms import T_R_F, D_R_F, S_R_F, B_R_F, C_T_R_F
+from MainApp.forms import T_R_F, D_R_F, E_R_F, B_R_F, C_T_R_F
 
 
 import psycopg2
@@ -59,25 +59,25 @@ def get_DRF_form(request):
     return render(request, "Discipline register.html", {"form": form})
 
 
-def subject_registration(request):
-    form = S_R_F()
+def equipment_registration(request):
+    form = E_R_F()
 
-    return render(request, "Subject register.html", {"form": form})
+    return render(request, "Equipment register.html", {"form": form})
 
-def get_SRF_form(request):
+def get_ERF_form(request):
     if request.method =="POST":
-        form = S_R_F(request.POST)
+        form = E_R_F(request.POST)
         if form.is_valid():
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
                 query = f"""INSERT INTO data.subjects (subject_names)
-                            VALUES ('{S_R_F.Meta.model.Subject_name}')"""
+                            VALUES ('{E_R_F.Meta.model.Subject_name}');"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
             except IntegrityError as intgrerr:
                 return intgrerr
-    return render(request, "Subject register.html", {"form": form})
+    return render(request, "Equipment register.html", {"form": form})
 
 
 def building_registration(request):
@@ -124,24 +124,20 @@ def get_CTRF_form(request):
 
 # Вторичные функции - создаются с использованием данных класса Data_container созданных первичными функциями
 
-def cabinets_registration(building: str, new_cabinet_number: int, cab_type: str,
-                      containing_subjects: str):  # Ожидает ввода клиентом Кабинета и данных о нём.
-    for checker in Data_container.buildings:
-        if building == checker:
-            for checker1 in Data_container.types:
-                if cab_type == checker1:
-                    for checker2 in Data_container.subjects:
-                        if checker2 == containing_subjects:
-                            cab = {"Филиал": building,
-                                   "Номер": new_cabinet_number,
-                                   "Тип": cab_type,
-                                   "Оборудование": containing_subjects}
-                            Data_container.cabinets.append(cab)  # В классе Data_container будут содержаться данные о кабинете
-                            return cab
-                        else:
-                            return "Некоторое оборудование не обнаружено!"
-            else:
-                return "Некоторые данные не обнаружены!"
+def cabinets_registration(request):  # Ожидает ввода клиентом Кабинета и данных о нём.
+    if request.method =="POST":
+        form = E_R_F(request.POST)
+        if form.is_valid():
+            try:
+                connection = create_connection("db", "student", "123456", "localhost", "5432")
+                query = f"""INSERT INTO data.cabinets (building, cabinet_number, cabinet_type, equipment)
+                            VALUES ('{form.Building}', '{form.Cabinet_number}', '{form.Cabinet_type}', '{form.Equipment}');"""
+                executor(connection, query)
+                form.save()
+                return redirect("http://127.0.0.1:8000")
+            except IntegrityError as intgrerr:
+                return intgrerr
+    return render(request, "Cabinet register.html", {"form": form})
 
 
 def descipline_full_info(request):
@@ -260,9 +256,10 @@ def db_create_button(request):
                    (cabinet_type_names varchar(96) UNIQUE NOT NULL);"""
         executor(connection, cttcq)
         ctcq = """CREATE TABLE IF NOT EXISTS data.cabinets
-                  (building_name varchar(96) NOT NULL,
+                  (building varchar(48) NOT NULL,
                   cabinet_number PRIMARY KEY integer NOT NULL,
-                  cabinet_type varchar[5]  )"""
+                  cabinet_type varchar[3],
+                  equipment varchar(96));"""
         return render(request, "htmldoc.html")
     except DuplicateDatabase as dberr:
         return render(request, "htmldoc.html", {"DDBerr": dberr})

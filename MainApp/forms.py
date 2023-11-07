@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from MainApp.models import TRF, DRF, BRF, SRF, CTRF
+from MainApp.models import TRF, DRF, BRF, ERF, CTRF, CRF
 
 
 class T_R_F(ModelForm):
@@ -18,12 +18,18 @@ class B_R_F(ModelForm):
         model = BRF
         fields = ["Building_name"]
 
-class S_R_F(ModelForm):
+class E_R_F(ModelForm):
     class Meta:
-        model = SRF
-        fields = ["Subject_name"]
+        model = ERF
+        fields = ["Equipment_name"]
 
 class C_T_R_F(ModelForm):
     class Meta:
         model = CTRF
         fields = ["Cabinet_type_name"]
+
+class C_R_F(ModelForm):
+    class Meta:
+        model = CRF
+        fields = ["Building", "Cabinet_number", "Cabinet_type", "Equipment"]
+        

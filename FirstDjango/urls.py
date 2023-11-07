@@ -23,16 +23,21 @@ urlpatterns = [
     path('', views.main_page),
 
     # Пути первичных функций
+
     path("Teacher register.html", views.teacher_registration),
     path("TR submit", views.get_TRF_form),
     path("Discipline register.html", views.discipline_registration),
     path("DR submit", views.get_DRF_form),
-    path("Subject register.html", views.subject_registration),
-    path("SR submit", views.get_SRF_form),
+    path("Equipment register.html", views.equipment_registration),
+    path("ER submit", views.get_ERF_form),
     path("Building register.html", views.building_registration),
     path("BR submit", views.get_BRF_form),
     path("Cabinet type register.html", views.cabinet_type_registration),
     path("CTR submit", views.get_CTRF_form),
+    
+    # Пути фторичных функций
+
+    path("Cabinet register.html", views.cabinets_registration),
 
     #Создание/удаление базы данных
     path("create_db", views.db_create_button),
