@@ -126,8 +126,12 @@ def get_CTRF_form(request):
 
 def cabinet_registration(request):
     form = C_R_F()
+    connection = create_connection("db", "student", "123456", "localhost", "5432")
+    Buildings_get_querry = f"""SELECT * FROM data.buildings building_names"""
+    data = reader(connection, Buildings_get_querry)
 
-    return render(request, "Cabinet register.html", {"form": form})
+    return render(request, "Cabinet register.html", {"form": form,
+                                                     "data": data})
 
 def get_CRF_form(request):
     if request.method =="POST":
@@ -157,29 +161,10 @@ def descipline_full_info(request):
     f_i.update(disciplines)
     f_i.update()
 
-    Data_container.full_info_container.append(f_i)
     return f_i
 
 
-class Data_container: # После внедрения PGSQL будет удалён
-
-    buildings = []
-
-    types = []
-
-    teachers = []
-
-    disciplines = []
-
-    subjects = []
-
-    cabinets = []
-
-    full_info_container = []
-
-
-# Третичные функции управляют данными вышестоящих функций и класса Data_container
-
+# Третичные функции управляют данными вышестоящих функций
 
 # Создаём директорию для файла (Если он есть, отлавливаем ошибку, не давая программе)
 # Прерваться на ней.
@@ -239,6 +224,16 @@ def executor(connection, query):
     except OperationalError as e:
         print(f"The error '{e}' occurred")
 
+def reader(connection, query):
+    cursor = connection.cursor()
+    result = None
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return result
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+
 def db_create_button(request):
     connection = create_connection("db", "student", "123456", "localhost", "5432")
     try:
@@ -247,7 +242,7 @@ def db_create_button(request):
         ttcq = """CREATE TABLE IF NOT EXISTS data.teachers
                   (teacher_name varchar(96) NOT NULL,
                   surname varchar(96) NOT NULL,
-                  surname1 varchar(96) NOT NULL);"""       
+                  surname1 varchar(96) NOT NULL);"""      
         executor(connection, ttcq)
         dtcq = """CREATE TABLE IF NOT EXISTS data.disciplines
                   (discipline_names varchar(96) UNIQUE NOT NULL);"""
