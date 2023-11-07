@@ -37,7 +37,8 @@ urlpatterns = [
     
     # Пути фторичных функций
 
-    path("Cabinet register.html", views.cabinets_registration),
+    path("Cabinet register.html", views.cabinet_registration),
+    path("CR submit", views.get_CRF_form),
 
     #Создание/удаление базы данных
     path("create_db", views.db_create_button),

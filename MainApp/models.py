@@ -19,7 +19,7 @@ class CTRF(models.Model):
 
 class CRF(models.Model):
     Building = models.CharField(max_length=48)
-    Cabinet_number = models.IntegerField(max_length=5)
+    Cabinet_number = models.IntegerField()
     Cabinet_type = models.CharField(max_length=96)
     Equipment = models.CharField(max_length=96)
     

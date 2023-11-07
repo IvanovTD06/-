@@ -9,11 +9,11 @@ from pathlib import Path
 
 from django.shortcuts import render, redirect
 
-from MainApp.forms import T_R_F, D_R_F, E_R_F, B_R_F, C_T_R_F
+from MainApp.forms import T_R_F, D_R_F, E_R_F, B_R_F, C_T_R_F, C_R_F
 
 
 import psycopg2
-from psycopg2.errors import OperationalError, DuplicateDatabase, InvalidSchemaName, IntegrityError
+from psycopg2.errors import OperationalError, DuplicateDatabase, InvalidSchemaName
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,7 +30,7 @@ def get_TRF_form(request):
        if form.is_valid():
            connection = create_connection("db", "student", "123456", "localhost", "5432")
            query = f"""INSERT INTO data.teachers (teacher_name, surname, surname1)
-                       VALUES ('{T_R_F.Meta.model.Name}', '{T_R_F.Meta.model.Surname}', '{T_R_F.Meta.model.Surname1}');"""
+                       VALUES ('{form.cleaned_data.get("Name")}', '{form.cleaned_data.get("Surname")}', '{form.cleaned_data.get("Surname1")}');"""
            executor(connection, query)
            form.save()
            return redirect("http://127.0.0.1:8000")
@@ -50,12 +50,12 @@ def get_DRF_form(request):
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
                 query = f"""INSERT INTO data.disciplines (discipline_names)
-                            VALUES ('{D_R_F.Meta.model.Discipline_name}')"""
+                            VALUES ('{form.cleaned_data.get("Discipline_name")}')"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
-            except IntegrityError as intgrerr:
-                return intgrerr,
+            except AttributeError as atrerr:
+                return atrerr,
     return render(request, "Discipline register.html", {"form": form})
 
 
@@ -70,13 +70,13 @@ def get_ERF_form(request):
         if form.is_valid():
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
-                query = f"""INSERT INTO data.subjects (subject_names)
-                            VALUES ('{E_R_F.Meta.model.Subject_name}');"""
+                query = f"""INSERT INTO data.equipment (equipment_names)
+                            VALUES ('{form.cleaned_data.get("Equipment_name")}');"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
-            except IntegrityError as intgrerr:
-                return intgrerr
+            except AttributeError as atrerr:
+                return atrerr
     return render(request, "Equipment register.html", {"form": form})
 
 
@@ -92,12 +92,12 @@ def get_BRF_form(request):
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
                 query = f"""INSERT INTO data.buildings (building_names)
-                            VALUES ('{B_R_F.Meta.model.Building_name}')"""
+                            VALUES ('{form.cleaned_data.get("Building_name")}')"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
-            except IntegrityError as intgrerr:
-                return intgrerr
+            except AttributeError as atrerr:
+                return atrerr
     return render(request, "Building register.html", {"form": form})
 
 
@@ -113,30 +113,36 @@ def get_CTRF_form(request):
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
                 query = f"""INSERT INTO data.cabinet_types (cabinet_type_names)
-                            VALUES ('{C_T_R_F.Meta.model.Cabinet_type_name}')"""
+                            VALUES ('{form.cleaned_data.get("Cabinet_type_name")}')"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
-            except IntegrityError as intgrerr:
-                return intgrerr
+            except AttributeError as atrerr:
+                return atrerr
     return render(request, "Cabinet type register.html", {"form": form})
 
 
 # Вторичные функции - создаются с использованием данных класса Data_container созданных первичными функциями
 
-def cabinets_registration(request):  # Ожидает ввода клиентом Кабинета и данных о нём.
+def cabinet_registration(request):
+    form = C_R_F()
+
+    return render(request, "Cabinet register.html", {"form": form})
+
+def get_CRF_form(request):
     if request.method =="POST":
-        form = E_R_F(request.POST)
+        form = C_R_F(request.POST)
         if form.is_valid():
             try:
                 connection = create_connection("db", "student", "123456", "localhost", "5432")
                 query = f"""INSERT INTO data.cabinets (building, cabinet_number, cabinet_type, equipment)
-                            VALUES ('{form.Building}', '{form.Cabinet_number}', '{form.Cabinet_type}', '{form.Equipment}');"""
+                            VALUES ('{form.cleaned_data.get("Building")}', '{form.cleaned_data.get("Cabinet_number")}', '{form.cleaned_data.get("Cabinet_type")}',
+                            '{form.cleaned_data.get("Equipment")}');"""
                 executor(connection, query)
                 form.save()
                 return redirect("http://127.0.0.1:8000")
-            except IntegrityError as intgrerr:
-                return intgrerr
+            except AttributeError as atrerr:
+                return atrerr
     return render(request, "Cabinet register.html", {"form": form})
 
 
@@ -246,9 +252,9 @@ def db_create_button(request):
         dtcq = """CREATE TABLE IF NOT EXISTS data.disciplines
                   (discipline_names varchar(96) UNIQUE NOT NULL);"""
         executor(connection, dtcq)
-        stcq = """CREATE TABLE IF NOT EXISTS data.subjects
-                  (subject_names varchar(96) UNIQUE NOT NULL);"""
-        executor(connection, stcq)
+        etcq = """CREATE TABLE IF NOT EXISTS data.equipment
+                  (equipment_names varchar(96) UNIQUE NOT NULL);"""
+        executor(connection, etcq)
         btcq = """CREATE TABLE IF NOT EXISTS data.buildings
                   (building_names varchar(96) UNIQUE NOT NULL);"""
         executor(connection, btcq)
@@ -257,9 +263,13 @@ def db_create_button(request):
         executor(connection, cttcq)
         ctcq = """CREATE TABLE IF NOT EXISTS data.cabinets
                   (building varchar(48) NOT NULL,
-                  cabinet_number PRIMARY KEY integer NOT NULL,
-                  cabinet_type varchar[3],
-                  equipment varchar(96));"""
+                  cabinet_number integer PRIMARY KEY NOT NULL,
+                  cabinet_type varchar(96),
+                  equipment varchar(96),
+                  FOREIGN KEY (building) REFERENCES data.buildings (building_names),
+                  FOREIGN KEY (cabinet_type) REFERENCES data.cabinet_types (cabinet_type_names),
+                  FOREIGN KEY (equipment) REFERENCES data.equipment (equipment_names));"""
+        executor(connection, ctcq)
         return render(request, "htmldoc.html")
     except DuplicateDatabase as dberr:
         return render(request, "htmldoc.html", {"DDBerr": dberr})
