@@ -9,13 +9,14 @@ from pathlib import Path
 
 from django.shortcuts import render, redirect
 
-from MainApp.forms import T_R_F, D_R_F, E_R_F, B_R_F, C_T_R_F, C_R_F
+from MainApp.forms import T_R_F, D_R_F, E_R_F, B_R_F, C_T_R_F, C_R_F, C_D
 
 
 import psycopg2
-from psycopg2.errors import OperationalError, DuplicateDatabase, InvalidSchemaName
+from psycopg2.errors import OperationalError, DuplicateSchema, InvalidSchemaName
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Первичные функции
 
@@ -126,12 +127,8 @@ def get_CTRF_form(request):
 
 def cabinet_registration(request):
     form = C_R_F()
-    connection = create_connection("db", "student", "123456", "localhost", "5432")
-    Buildings_get_querry = f"""SELECT * FROM data.buildings building_names"""
-    data = reader(connection, Buildings_get_querry)
 
-    return render(request, "Cabinet register.html", {"form": form,
-                                                     "data": data})
+    return render(request, "Cabinet register.html", {"form": form})
 
 def get_CRF_form(request):
     if request.method =="POST":
@@ -166,35 +163,6 @@ def descipline_full_info(request):
 
 # Третичные функции управляют данными вышестоящих функций
 
-# Создаём директорию для файла (Если он есть, отлавливаем ошибку, не давая программе)
-# Прерваться на ней.
-# ||
-# \/
-
-def excel_maker():
-    try:
-        mkdir("C:/Users/timiv/OneDrive/Рабочий стол/Papka")
-    except os_error as err:
-        print(err)
-
-    g1 = list
-    g2 = list
-    g3 = list
-    g4 = list
-
-    df = pd.DataFrame({
-        "20CА-22К": [g1],
-        "22ИС-22К": [g2],
-        "22/1ИС-22К": [g3],
-        "22/1ИСд": [g4],
-    })
-
-    df.to_excel[BASE_DIR / 'sample.xlsx']
-
-
-# -------------------------------------------------------- #
-# ------------ Функции для работы с tempplate ------------ #
-# -------------------------------------------------------- #
 
 def create_connection(db_name, db_user, db_password, db_host, db_port):
         connection = None
@@ -211,9 +179,20 @@ def create_connection(db_name, db_user, db_password, db_host, db_port):
             print(f"The error '{e}' occurred")
         return connection
 
-def main_page(request):
+def registrate_connection(request):
+    if request.method == "GET":
+        form = C_D(request.GET)
+        if form.is_valid():
+            registred_connection = (form.cleaned_data.get())
+            print(registred_connection)
+            try:
+                create_connection(registred_connection)
+                return redirect("http://127.0.0.1:8000")
+            except psycopg2.Error as error:
+                return error
+    return render(request, "htmldoc.html", {"db_form": form})
 
-    return render(request, "htmldoc.html")
+
 
 def executor(connection, query):
     connection.autocommit = True
@@ -233,6 +212,7 @@ def reader(connection, query):
         return result
     except OperationalError as e:
         print(f"The error '{e}' occurred")
+
 
 def db_create_button(request):
     connection = create_connection("db", "student", "123456", "localhost", "5432")
@@ -266,8 +246,8 @@ def db_create_button(request):
                   FOREIGN KEY (equipment) REFERENCES data.equipment (equipment_names));"""
         executor(connection, ctcq)
         return render(request, "htmldoc.html")
-    except DuplicateDatabase as dberr:
-        return render(request, "htmldoc.html", {"DDBerr": dberr})
+    except DuplicateSchema as dserr:
+        return render(request, "htmldoc.html", {"DSerr": dserr})
 
 def db_drop_button(request):
     try:
@@ -277,3 +257,40 @@ def db_drop_button(request):
         return render(request, "htmldoc.html", {"ddb": ddb})
     except InvalidSchemaName as dberr:
         return render(request, "htmldoc.html", {"ICNerr": dberr})
+
+# Создаём директорию для файла (Если он есть, отлавливаем ошибку, не давая программе)
+# Прерваться на ней.
+# ||
+# \/
+
+def excel_maker():
+    try:
+        mkdir("C:/Users/timiv/OneDrive/Рабочий стол/Papka")
+    except os_error as err:
+        print(err)
+
+    g1 = list
+    g2 = list
+    g3 = list
+    g4 = list
+
+    df = pd.DataFrame({
+        "20CА-22К": [g1],
+        "22ИС-22К": [g2],
+        "22/1ИС-22К": [g3],
+        "22/1ИСд": [g4],
+    })
+
+    df.to_excel[BASE_DIR / 'sample.xlsx']
+
+
+# -------------------------------------------------------- #
+# ------------ Функции для работы с tempplate ------------ #
+# -------------------------------------------------------- #
+
+
+
+def main_page(request):
+    form = C_D()
+
+    return render(request, "htmldoc.html", {"db_form": form})

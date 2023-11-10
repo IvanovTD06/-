@@ -6,10 +6,15 @@
     </head>
     <body bgcolor="#deffff">
 
-
+        <form action="registrate connection" method="get">
+            <table>
+                {{ db_form }}
+            </table>
+            <input type="submit" value="Submit"/>
+         </form>
 
         <form action="create_db" method="post">
-    {{DDBerr}}
+    {{DSerr}}
     {% csrf_token %}
     <input type="submit", value="Создать базу данных">
         </form>

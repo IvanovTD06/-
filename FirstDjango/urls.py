@@ -35,12 +35,13 @@ urlpatterns = [
     path("Cabinet type register.html", views.cabinet_type_registration),
     path("CTR submit", views.get_CTRF_form),
     
-    # Пути фторичных функций
+    # Пути вторичных функций
 
     path("Cabinet register.html", views.cabinet_registration),
     path("CR submit", views.get_CRF_form),
 
-    #Создание/удаление базы данных
+    #Создание/удаление/настройки базы данных
     path("create_db", views.db_create_button),
-    path("drop_db", views.db_drop_button)
+    path("drop_db", views.db_drop_button),
+    path("registrate connection", views.registrate_connection)
 ]
