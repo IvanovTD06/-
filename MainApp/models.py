@@ -26,8 +26,8 @@ class CRF(models.Model):
 
 
 class Connection_data(models.Model):
-    db_name = models.CharField(max_length=32)
+    db_name = models.CharField(max_length=32, choices=(("", ""), ("postgres", "postgres")))
     db_user = models.CharField(max_length=48, choices=(("", ""), ("student", "student")))
     db_password = models.CharField(max_length=32, choices=(("", ""), ("123456", "123456")))
-    db_host = models.GenericIPAddressField(choices=(("", ""), ("localhost", "localhost")))
+    db_host = models.CharField(max_length=32, choices=(("", ""), ("localhost", "localhost")))
     db_port = models.IntegerField()

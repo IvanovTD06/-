@@ -6,7 +6,8 @@
     </head>
     <body bgcolor="#deffff">
 
-        <form action="registrate connection" method="get">
+        <form action="registrate connection" method="post">
+            {% csrf_token %}
             <table>
                 {{ db_form }}
             </table>

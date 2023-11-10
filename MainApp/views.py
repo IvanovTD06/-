@@ -180,18 +180,17 @@ def create_connection(db_name, db_user, db_password, db_host, db_port):
         return connection
 
 def registrate_connection(request):
-    if request.method == "GET":
-        form = C_D(request.GET)
-        if form.is_valid():
-            registred_connection = (form.cleaned_data.get())
-            print(registred_connection)
-            try:
-                create_connection(registred_connection)
+        if request.method == "POST":
+            form = C_D(request.POST)
+            if form.is_valid():
+                db = form.cleaned_data.get("db_name")
+                username = form.cleaned_data.get("db_user")
+                password = form.cleaned_data.get("db_password")
+                host = form.cleaned_data.get("db_host")
+                port = form.cleaned_data.get("db_port")
+                create_connection(db, username, password, host, port)
                 return redirect("http://127.0.0.1:8000")
-            except psycopg2.Error as error:
-                return error
-    return render(request, "htmldoc.html", {"db_form": form})
-
+        return render(request, "htmldoc.html", {"db_form": form})
 
 
 def executor(connection, query):
